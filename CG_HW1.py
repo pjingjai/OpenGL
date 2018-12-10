@@ -74,13 +74,22 @@ def loop():
     global flag, show, p1x, p1y, p2x, p2y
     m = (p1y - p2y) / (p1x - p2x)
     def case():
+        global p1x, p1y
         if p1x<r1x:
+            p1y += m * abs(p1x - r1x)
+            p1x = r1x
             return 1
         elif p1x>r4x:
+            p1y -= m * abs(p1x - r4x)
+            p1x = r4x
             return 2
         elif p1y<r1y:
+            p1x += abs(p1y - r1y) / m
+            p1y = r1y
             return 3
         elif p1y>r2y:
+            p1x -= abs(p1y - r2y) / m
+            p1y = r2y
             return 4
 
     while flag:
@@ -99,20 +108,8 @@ def loop():
                 temp = p1y
                 p1y = p2y
                 p2y = temp
+            case()
 
-            if case() == 1:
-                p1y += m * abs(p1x - r1x)
-                p1x = r1x
-            if case() == 2:
-                p1y -= m * abs(p1x - r4x)
-                p1x = r4x
-
-            if case() == 3:
-                p1x += abs(p1y - r1y) / m
-                p1y = r1y
-            if case() == 4:
-                p1x -= abs(p1y - r2y) / m
-                p1y = r2y
     glutPostRedisplay()
 
 def accept():
