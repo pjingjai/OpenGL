@@ -133,7 +133,7 @@ def accept():
         return False
 
 def reject():
-    # both p1 & p2 are outside pf Rect
+    # both p1 & p2 are outside of Rect
     if p1x<r1x and p2x<r1x  or  p1x>r4x and p2x>r4x  or  p1y<r1y and p2y<r1y  or  p1y>r2y and p2y>r2y:
         return True
     else:
