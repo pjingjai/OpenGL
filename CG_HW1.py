@@ -1,3 +1,5 @@
+import time
+
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from OpenGL.GL import *
@@ -24,14 +26,19 @@ r3y = Rect[2][1]
 r4x = Rect[3][0]
 r4y = Rect[3][1]
 
-Line = [[-0.2, -0.9], [0.6, 0.7]]
+Line = [[-0.2, -0.6], [-0.6,0.4]]
 p1x = Line[0][0]
 p1y = Line[0][1]
 p2x = Line[1][0]
 p2y = Line[1][1]
 
+pos_x = 0
+pos_y = 0
+move = False
+
 flag = True
 show = False
+show2 = False
 
 def initial():
     glClearColor(0, 0, 0, 0)
@@ -47,6 +54,7 @@ def main():
     glutCreateWindow(name)
     initial()
     glutDisplayFunc(display)
+    glutKeyboardFunc(keyboard)
     glutIdleFunc(loop)
     glutMainLoop()
     return
@@ -54,7 +62,7 @@ def main():
 def loop1():
     global show
     show = True
-
+    glutPostRedisplay()
 
 def display():
     glClear(GL_COLOR_BUFFER_BIT )
@@ -76,12 +84,76 @@ def display():
         glEnd()
         glPopMatrix()
 
+    if show2:
+        glPushMatrix()
+        glBegin(GL_LINES)
+        glVertex2f(Line[0][0] + pos_x, Line[0][1] + pos_y)
+        glVertex2f(Line[1][0] + pos_x, Line[1][1] + pos_y)
+        glEnd()
+        glPopMatrix()
+
     glFlush()
     return
 
+def keyboard(key, x, y):
+    global p1x, p2x, p1y, p2y, pos_x, pos_y, move, show2, show
+    unit = 0.01
+
+    while True:
+        if key == b'\x20':
+            if show2:
+                show2 = False
+                show = True
+            else:
+                show2 = True
+                show = False
+            break
+        if key == b'a':
+            p1x -= unit
+            p2x -= unit
+
+            move = True
+            pos_x -= unit
+            break
+        if key == b'd':
+            p1x += unit
+            p2x += unit
+
+            move = True
+            pos_x += unit
+            break
+        if key == b'w':
+            p1y += unit
+            p2y += unit
+
+            move = True
+            pos_y += unit
+            break
+        if key == b's':
+            p1y -= unit
+            p2y -= unit
+
+            move = True
+            pos_y -= unit
+            break
+        else:
+            break
+
 def loop():
-    global flag, show, p1x, p1y, p2x, p2y
-    m = (p1y - p2y) / (p1x - p2x)
+    global flag, show, p1x, p1y, p2x, p2y, Line, move
+    if p1x - p2x != 0:
+        m = (p1y - p2y) / (p1x - p2x)
+    if p1y - p2y != 0:
+        m1 = (p1x - p2x) / (p1y - p2y)
+    # reset
+    flag = True
+    show = False
+
+    if move:
+        p1x = Line[0][0] * pos_x
+        p1y = Line[0][1] * pos_y
+        p2x = Line[1][0] * pos_x
+        p2y = Line[1][1] * pos_y
 
     # IF p1 is outside of Rect THEN move p1 onto Rect's edge(s)
     def adjust_p1():
@@ -100,14 +172,15 @@ def loop():
     # on Y Axis
         #bottom
         elif p1y<r1y:
-            p1x += abs(p1y - r1y) / m
+            p1x += m1 * abs(p1y - r1y)
             p1y = r1y
             return 3
         #top
         elif p1y>r2y:
-            p1x -= abs(p1y - r2y) / m
+            p1x -= m1 * abs(p1y - r2y)
             p1y = r2y
             return 4
+
 
     while flag:
         if accept():
@@ -139,4 +212,5 @@ def reject():
     else:
         return False
 
-main()
+if __name__ == '__main__':
+    main()
